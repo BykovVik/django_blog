@@ -1,0 +1,35 @@
+<div class="col-12 col-xl-3 side_bar site_card" id="side_bar">
+    <div class="site_card">
+        <ul>
+            <li><a href="https://teleg.run/developers_BOOts"><i class="fab fa-telegram"></i> &ensp;Мой канал в Telegram</a></li>
+            <li><a href="https://github.com/Pitosha"><i class="fab fa-github"></i> &ensp;Мой аккаунт GitHub</a></li>
+            <li><a href="https://github.com/Pitosha"><i class="fa fa-vk" aria-hidden="true"></i>&ensp;Моя группа в ВК</a></li>
+        </ul>
+    </div>
+    <div class="site_card">
+        <div class="title_padding">
+            <h4>Поиск по сайту:</h4>
+        </div>
+        <form id="s_form" action="{% url 'search' %}" method="get">  
+            <div>
+                <div class="search_f">
+                    {{ search_form_area.as_p }}
+                </div>
+                <div class="search_f">
+                    <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="site_card title_padding">
+        <h4>Популярные тэги:</h4>
+        <p class="tags">  
+            {% for tag in all_tags %}  
+                <a href="{% url 'post_list_by_tag' tag.slug %}">  
+                {{ tag.name }}  
+                </a>  
+                {% if not forloop.last %}, {% endif %}  
+            {% endfor %}  
+        </p>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ one_post.post_title }}
+{% endblock %}
+
+
+{% block javascript %}
+<script type="text/javascript">
+   
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="col-12 col-xl-7 content_post adaptive_image">
+    {% if one_post %}
+    <div class="title_box">
+        <h1 class="title_link">{{ one_post.post_title }}</h1>
+    </div>
+    <p class="post_body">{{ one_post.post_body|safe }}</p>
+    <p class="data_standart">{{ one_post.date }}</p>
+    {% endif %}
+    <div class="d-none d-sm-none d-md-none d-xl-block under_post site_card">
+        <div class="site_card">
+            <ul>
+                <p>Если вы хотите прокомментировать любую из мои статей, или обсудить её с другими читателями, посетите нас в следующих соцсетях:</p>
+                <li><a href="https://t.me/developers_BOOts"><i class="fab fa-telegram"></i> &ensp;Мой канал в Telegram</a></li>
+                <li><a href="https://github.com/Pitosha"><i class="fa fa-vk" aria-hidden="true"></i>&ensp;Моя группа в ВК</a></li>
+                <li><a href="https://github.com/Pitosha"><i class="fab fa-github"></i> &ensp;Мой аккаунт GitHub</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

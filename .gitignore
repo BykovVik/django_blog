@@ -1,0 +1,9 @@
+/web_env/**
+/developer_boots/developer_boots/__pycache__/**
+/developer_boots/developer_boots/settings.py
+/developer_boots/uploads/**
+/developer_boots/posts/migrations
+/developer_boots/posts/__pycache__
+/developer_boots/posts/static/**
+
+
