@@ -22,7 +22,7 @@ class Post(models.Model):
     post_img = models.ImageField(upload_to='uploads/', default=None)
     post_body = RichTextUploadingField()
     date = models.DateTimeField()
-    category_title = models.ForeignKey('Category', on_delete=models.CASCADE)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE)
     tags = TaggableManager()
 
     class Meta:
@@ -35,7 +35,7 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('one_post',
             args = [
-                self.category_title,
+                self.category,
                 self.post_slug
             ]
         )

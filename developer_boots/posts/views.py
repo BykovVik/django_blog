@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from . models import Post, Category, Static_page
 from taggit.models import Tag
 from . forms import search_form
+from . serializers import PostsSerializer
 
 
 def index_page(request, tag_slug=None): 
@@ -33,7 +35,7 @@ def post_list(request, tag_slug=None):
 
     req_path = request.path.replace("/","")
     num_cat = Category.objects.get(category_name=req_path)
-    posts_list = Post.objects.filter(category_title=num_cat.id)
+    posts_list = Post.objects.filter(category=num_cat.id)
     posts_count = 5
     paginator = Paginator(posts_list, posts_count)
     page_number = request.GET.get('page')
@@ -115,3 +117,14 @@ def pages(request):
     title_path = req_path.replace(" ", "/")
 
     return render(request, 'pages.html', {'post': post, 'req_path': title_path, 'page_title': page_title})
+
+
+
+########################################API_METHODS##########################################
+
+def posts_api(request):
+    if request.method == 'GET':
+
+        posts = Post.objects.all()
+        serializer = PostsSerializer(posts, many=True)
+        return JsonResponse(serializer.data, safe=False)
