@@ -2,41 +2,46 @@ import config as conf
 import requests
 import time
 
+def get_new_posts(post_api_url, over_time, tg_url, chanel_id):
 
-def get_new_posts(post_api_url, over_time, tg_url, chanel_id, post_id):
+    response = requests.get(post_api_url)
+    res = response.json()
+    res_id = res[0]['id']
 
-    #создаём точку отсчета
-    start = time.monotonic()
+    if res_id == conf.POST_ID:
+        print("Сравнялись")
+        return
+                
+    else:
 
-    while True:
+        conf.POST_ID = res_id
 
-        #вычиляем необходимое время для завершения работы таймера
-        if time.monotonic() - start > over_time:
+        title = res[0]['post_title']
+        body = res[0]['post_body']
+        img_path = res[0]['post_img']
+        slug = res[0]['post_slug']
 
-            response = requests.get(post_api_url)
-            res = response.json()
-            res_id = res[0]['id']
+        message = "НАЗВАНИЕ: {} \nСОДЕРЖИМОЕ:\n{}".format(title, body)
 
-            if res_id == post_id:
+        publish_from_tg_chanel(chanel_id, tg_url, message)
+                
 
-                continue
+def publish_from_tg_chanel(chanel_id, tg_url, message):
 
-            else:
-
-                publish_from_tg_chanel(chanel_id, tg_url)
-                continue
-
-def publish_from_tg_chanel(chanel_id, tg_url):
-
-    params = {'chat_id': chanel_id, 'text': "Хобаааааааа"}
+    params = {'chat_id': chanel_id, 'text': message}
     response = requests.get(tg_url + 'sendMessage', data=params)
+
+    return
 
 if __name__ == "__main__":
 
-    get_new_posts(
-        conf.URL_POST_API,
-        conf.OVER_TIME,
-        conf.URL_TG_API,
-        conf.CHANEL_ID,
-        conf.POST_ID
-    )
+    while True:
+
+        time.sleep(15)
+
+        get_new_posts(
+            conf.URL_POST_API,
+            conf.OVER_TIME,
+            conf.URL_TG_API,
+            conf.CHANEL_ID,
+        )
