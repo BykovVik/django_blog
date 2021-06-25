@@ -1,11 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.contrib.postgres.search import SearchVector
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.messages.views import SuccessMessageMixin
+from django.views.generic.edit import UpdateView, CreateView
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from . models import Post, Category, Static_page
+from . models import Post, Category, Static_page, AppUser
 from taggit.models import Tag
-from . forms import search_form
+from . forms import search_form, ChangeUserForm, RegUserForm
 from . serializers import PostsSerializer
+from rest_framework.views import APIView
 
 
 def index_page(request, tag_slug=None): 
@@ -119,10 +126,63 @@ def pages(request):
     return render(request, 'pages.html', {'post': post, 'req_path': title_path, 'page_title': page_title})
 
 
+class AppLoginViews(LoginView):
+    
+    template_name = 'login.html'
+
+
+@login_required
+def profile(request):
+
+    return render(request, 'profile.html')
+
+
+class AppLogoutViews(LoginRequiredMixin, LogoutView):
+
+    template_name = 'logout.html'
+
+
+class ChangeUserDataViews(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
+
+    model = AppUser
+    template_name = "change_user.html"
+    form_class = ChangeUserForm
+    success_url = reverse_lazy('profile')
+    success_message = "Данные пользователя успешно изменены"
+
+    def setup(self, request, *args, **kwargs):
+
+        self.user_id = request.user.pk
+        return super().setup(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+
+        if not queryset:
+
+            queryset = self.get_queryset()
+        
+        return get_object_or_404(queryset, pk = self.user_id)
+
+class ChangePasswordView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeView):
+
+    template_name = 'change_pass.html'
+    success_url = reverse_lazy('password_change')
+    success_message = 'Пароль успешно изменён'
+
+class RegUserView(CreateView):
+
+    model = AppUser
+    template_name = 'reg_user.html'
+    form_class = RegUserForm
+    success_url = reverse_lazy('register')
+
+
+
 
 ########################################API_METHODS##########################################
 
 def posts_api(request):
+    
     if request.method == 'GET':
 
         posts = Post.objects.all()

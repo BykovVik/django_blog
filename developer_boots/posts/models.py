@@ -1,8 +1,20 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from ckeditor_uploader.fields import RichTextUploadingField
 from taggit.managers import TaggableManager
+
+
+
+class AppUser(AbstractUser):
+    
+    is_actived = models.BooleanField(default=True, db_index=True, verbose_name="Прошел активацию?")
+    send_message = models.BooleanField(default=True, verbose_name="Слать оповещение о новых комментариях?")
+
+    class Meta(AbstractUser.Meta):
+
+        pass
+
 
 
 class Category(models.Model):
