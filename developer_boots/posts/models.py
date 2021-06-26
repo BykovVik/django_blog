@@ -25,32 +25,48 @@ class Category(models.Model):
     def __str__(self):
         return self.category_name
 
+    class Meta:
+
+        verbose_name_plural = "Категории"
+        verbose_name = "Категория"
+
 
 class Post(models.Model):
 
     id = models.AutoField(unique=True, primary_key=True)
     post_title = models.CharField(unique=True, max_length=256)
     post_slug = models.SlugField(max_length=256, unique=True, null=True, blank=True)
-    post_img = models.ImageField(upload_to='uploads/', default=None)
+    post_img = models.ImageField(upload_to='post_image/', default=None)
     post_body = RichTextUploadingField()
     date = models.DateTimeField()
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     tags = TaggableManager()
 
-    class Meta:
-
-        ordering = ['-date']
-
     def __str__(self):
+
         return self.post_title
 
     def get_absolute_url(self):
+
         return reverse('one_post',
             args = [
                 self.category,
                 self.post_slug
             ]
         )
+
+    def delete(self, *args, **kwargs):
+
+        for ai in self.additionalimage_set.all():
+            ai.delete()
+        super().delete(*args, **kwargs)
+
+    class Meta:
+
+        verbose_name_plural = "Публикации"
+        verbose_name = "Публикация"
+        ordering = ['-date']
+
 
 
 class Static_page(models.Model):
@@ -63,4 +79,10 @@ class Static_page(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+
+        verbose_name_plural = "Статические страницы"
+        verbose_name = "Статическая страница"
+
 

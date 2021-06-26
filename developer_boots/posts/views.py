@@ -6,36 +6,51 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.list import ListView
 from django.core.paginator import Paginator
-from django.http import JsonResponse
-from . models import Post, Category, Static_page, AppUser
 from taggit.models import Tag
+from . models import Post, Category, Static_page, AppUser
 from . forms import search_form, ChangeUserForm, RegUserForm
-from . serializers import PostsSerializer
-from rest_framework.views import APIView
 
 
-def index_page(request, tag_slug=None): 
+class IndexPage(ListView):
+    
+    model = Post
+    template_name = "index.html"
+    context_object_name = "index"
+    paginate_by = 2
 
-    last_post = Post.objects.first()
-    all_posts = Post.objects.all()
-    posts_count = 3
-    paginator = Paginator(all_posts, posts_count)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    search_form_area = search_form()
-    tag = None
-    all_tags = Tag.objects.all()
+    def get_context_data(self, **kwargs):
 
-    if tag_slug: 
-        tag = get_object_or_404(Tag, slug=tag_slug) 
-        all_posts = all_posts.filter(tags__in=[tag])
+        context = super().get_context_data(**kwargs)
+        context['all_tags'] = Tag.objects.all()
+        context['search_form_area'] = search_form()
+        context['new_post'] = Post.objects.first()
+        context['posts_count'] = self.paginate_by
 
-    if request.is_ajax():
-        return render(request, 'new_posts.html', {'new_post': last_post, 'all_posts': all_posts, 'page_obj':page_obj, 'search_form_area': search_form_area, 'tag': tag, 'all_tags': all_tags, 'paginator':paginator, 'posts_count': posts_count})
+        return context
 
-    return render(request, 'index.html', {'new_post': last_post, 'all_posts': all_posts, 'page_obj':page_obj, 'search_form_area': search_form_area, 'tag': tag, 'all_tags': all_tags, 'paginator':paginator, 'posts_count': posts_count})
 
+class PostList(ListView):
+
+    model = Post
+    template_name = "posts_list.html"
+    context_object_name = "list"
+    paginate_by = 2
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+        context['all_tags'] = Tag.objects.all()
+        context['search_form_area'] = search_form()
+        context['posts_count'] = self.paginate_by
+        context['req_path'] = self.request.path.replace("/","")
+        context['num_cat'] = Category.objects.get(category_name=context['req_path'])
+        context['posts_list'] = Post.objects.filter(category=context['num_cat'].id)
+
+        print("ЭТОООООООООООООООООООs", context['num_cat'].id)
+
+        return context
 
 
 def post_list(request, tag_slug=None):
@@ -125,10 +140,12 @@ def pages(request):
 
     return render(request, 'pages.html', {'post': post, 'req_path': title_path, 'page_title': page_title})
 
+################################################USERS_VIEWS##################################
 
 class AppLoginViews(LoginView):
     
     template_name = 'login.html'
+
 
 
 @login_required
@@ -137,9 +154,11 @@ def profile(request):
     return render(request, 'profile.html')
 
 
+
 class AppLogoutViews(LoginRequiredMixin, LogoutView):
 
     template_name = 'logout.html'
+
 
 
 class ChangeUserDataViews(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
@@ -163,11 +182,15 @@ class ChangeUserDataViews(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
         
         return get_object_or_404(queryset, pk = self.user_id)
 
+
+
 class ChangePasswordView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeView):
 
     template_name = 'change_pass.html'
     success_url = reverse_lazy('password_change')
     success_message = 'Пароль успешно изменён'
+
+
 
 class RegUserView(CreateView):
 
@@ -175,16 +198,3 @@ class RegUserView(CreateView):
     template_name = 'reg_user.html'
     form_class = RegUserForm
     success_url = reverse_lazy('register')
-
-
-
-
-########################################API_METHODS##########################################
-
-def posts_api(request):
-    
-    if request.method == 'GET':
-
-        posts = Post.objects.all()
-        serializer = PostsSerializer(posts, many=True)
-        return JsonResponse(serializer.data, safe=False)

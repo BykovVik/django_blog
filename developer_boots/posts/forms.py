@@ -42,7 +42,7 @@ class RegUserForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password1'])
-        user.is_active = False
+        user.is_active = True
         user.is_activated = False
         if commit:
             user.save()
