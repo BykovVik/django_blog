@@ -33,10 +33,15 @@ class IndexPage(ListView):
 
 class PostList(ListView):
 
-    model = Post
     template_name = "posts_list.html"
     context_object_name = "list"
     paginate_by = 2
+
+    def get_queryset(self):
+
+        num_cat = Category.objects.get(category_name=self.request.path.replace("/",""))
+
+        return Post.objects.filter(category=num_cat.id)
 
     def get_context_data(self, **kwargs):
 
@@ -48,7 +53,7 @@ class PostList(ListView):
         context['num_cat'] = Category.objects.get(category_name=context['req_path'])
         context['posts_list'] = Post.objects.filter(category=context['num_cat'].id)
 
-        print("ЭТОООООООООООООООООООs", context['num_cat'].id)
+        #print("ЭТОООООООООООООООООООs", context['num_cat'].id)
 
         return context
 
