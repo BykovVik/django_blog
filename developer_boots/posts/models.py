@@ -35,7 +35,7 @@ class Post(models.Model):
 
     id = models.AutoField(unique=True, primary_key=True)
     post_title = models.CharField(unique=True, max_length=256)
-    post_slug = models.SlugField(max_length=256, unique=True, null=True, blank=True)
+    slug = models.SlugField(max_length=256, unique=True, null=True, blank=True)
     post_img = models.ImageField(upload_to='post_image/', default=None)
     post_body = RichTextUploadingField()
     date = models.DateTimeField()
@@ -51,7 +51,7 @@ class Post(models.Model):
         return reverse('one_post',
             args = [
                 self.category,
-                self.post_slug
+                self.slug
             ]
         )
 

@@ -6,6 +6,8 @@
 /developer_boots/posts/__pycache__
 /developer_boots/posts/static/**
 /developer_boots/posts/templates/**
+/developer_boots/api/__pycache__/**
+/developer_boots/api/migrations/**
 /tg_poster/__pycache__/**
 
 
