@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import api_posts
+from .views import ApiCategory, ApiPosts
 
 urlpatterns = [
 
-    path('posts/', api_posts)
+    path('posts/', ApiPosts.as_view()),
+    path('category/', ApiCategory.as_view())
 
 ]
